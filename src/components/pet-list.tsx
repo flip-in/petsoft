@@ -1,7 +1,8 @@
+import { Pet } from '@/lib/types';
 import Image from 'next/image';
 
 type PetListProps = {
-  pets: any;
+  pets: Pet[];
 };
 
 export default function PetList({ pets }: PetListProps) {
