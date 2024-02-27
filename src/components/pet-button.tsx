@@ -1,23 +1,53 @@
 import { PlusIcon } from '@radix-ui/react-icons';
-import { Button } from './ui/button';
+import { Button, ButtonProps } from './ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
+import PetForm from './pet-form';
 
-type PetButtonProps = {
+type PetButtonProps = ButtonProps & {
   actionType: 'add' | 'edit' | 'checkout';
   children?: React.ReactNode;
 };
 
-export default function PetButton({ children, actionType }: PetButtonProps) {
-  if (actionType === 'add') {
+export default function PetButton({
+  children,
+  actionType,
+  ...props
+}: PetButtonProps) {
+  if (actionType === 'checkout') {
     return (
-      <Button size='icon'>
-        <PlusIcon className='w-6 h-6' />
+      <Button {...props} variant='secondary'>
+        {children}
       </Button>
     );
   }
-  if (actionType === 'edit') {
-    return <Button variant='secondary'>{children}</Button>;
-  }
-  if (actionType === 'checkout') {
-    return <Button variant='secondary'>{children}</Button>;
-  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {actionType === 'add' ? (
+          <Button {...props} size='icon'>
+            <PlusIcon className='w-6 h-6' />
+          </Button>
+        ) : (
+          <Button {...props} variant='secondary'>
+            {children}
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {actionType === 'add' ? 'Add a new pet' : 'Edit pet details'}
+          </DialogTitle>
+        </DialogHeader>
+        <PetForm />
+      </DialogContent>
+    </Dialog>
+  );
 }
