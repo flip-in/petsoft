@@ -1,19 +1,20 @@
 'use client';
 
 import { addPet, deletePet, editPet } from '@/actions/actions';
-import { Pet } from '@/lib/types';
+import { PetEssentials } from '@/lib/types';
+import { Pet } from '@prisma/client';
 import { createContext, startTransition, useOptimistic, useState } from 'react';
 import { toast } from 'sonner';
 
 type TPetContext = {
   pets: Pet[];
-  selectedPetId: string | null;
-  handleChangeSelectedPetId: (id: string) => void;
+  selectedPetId: Pet['id'] | null;
   selectedPet: Pet | undefined;
   numberOfPets: number;
-  handleCheckoutPet: (id: string) => Promise<void>;
-  handleAddPet: (newPet: Omit<Pet, 'id'>) => Promise<void>;
-  handleEditPet: (petId: string, newPetData: Omit<Pet, 'id'>) => Promise<void>;
+  handleAddPet: (newPet: PetEssentials) => Promise<void>;
+  handleEditPet: (petId: Pet['id'], newPetData: PetEssentials) => Promise<void>;
+  handleCheckoutPet: (id: Pet['id']) => Promise<void>;
+  handleChangeSelectedPetId: (id: Pet['id']) => void;
 };
 
 export const PetContext = createContext<TPetContext | null>(null);
@@ -45,14 +46,14 @@ export default function PetContextProvider({
       }
     }
   );
-  const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
+  const [selectedPetId, setSelectedPetId] = useState<Pet['id'] | null>(null);
 
   //derived state
   const selectedPet = optimisticPets.find((pet) => pet.id === selectedPetId);
   const numberOfPets = optimisticPets.length;
 
   //handlers
-  const handleAddPet = async (newPet: Omit<Pet, 'id'>) => {
+  const handleAddPet = async (newPet: PetEssentials) => {
     setOptimisticPets({ action: 'add', payload: newPet });
     const error = await addPet(newPet);
     if (error) {
@@ -60,7 +61,7 @@ export default function PetContextProvider({
       return;
     }
   };
-  const handleEditPet = async (petId: string, newPetData: Omit<Pet, 'id'>) => {
+  const handleEditPet = async (petId: Pet['id'], newPetData: PetEssentials) => {
     setOptimisticPets({
       action: 'edit',
       payload: { id: petId, data: newPetData },
@@ -71,14 +72,14 @@ export default function PetContextProvider({
       return;
     }
   };
-  const handleCheckoutPet = async (petId: string) => {
+  const handleCheckoutPet = async (petId: Pet['id']) => {
     startTransition(() => {
       setOptimisticPets({ action: 'delete', payload: petId });
     });
     await deletePet(petId);
     setSelectedPetId(null);
   };
-  const handleChangeSelectedPetId = (id: string) => {
+  const handleChangeSelectedPetId = (id: Pet['id']) => {
     setSelectedPetId(id);
   };
 
