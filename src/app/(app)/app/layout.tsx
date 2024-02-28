@@ -3,7 +3,6 @@ import AppHeader from '@/components/app-header';
 import BackgroundPattern from '@/components/background-pattern';
 import PetContextProvider from '@/contexts/pet-context-provider';
 import SearchContextProvider from '@/contexts/search-context-provider';
-import { Pet } from '@/lib/types';
 import prisma from '@/lib/db';
 
 type Props = {
@@ -11,6 +10,7 @@ type Props = {
 };
 
 export default async function Layout({ children }: Props) {
+  console.log('layout rendering');
   const pets = await prisma.pet.findMany({});
 
   return (
