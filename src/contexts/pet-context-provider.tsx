@@ -30,14 +30,19 @@ export default function PetContextProvider({
   //state
   const [optimisticPets, setOptimisticPets] = useOptimistic(
     data,
-    (state, newPet: Pet) => {
-      return [
-        ...state,
-        {
-          ...newPet,
-          id: Math.random().toString(),
-        },
-      ];
+    (prev, { action, payload }) => {
+      switch (action) {
+        case 'add':
+          return [...prev, { ...payload, id: Math.random().toString() }];
+        case 'edit':
+          return prev.map((pet) =>
+            pet.id === payload.id ? { ...pet, ...payload.data } : pet
+          );
+        case 'delete':
+          return prev.filter((pet) => pet.id !== payload);
+        default:
+          return prev;
+      }
     }
   );
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
@@ -48,7 +53,7 @@ export default function PetContextProvider({
 
   //handlers
   const handleAddPet = async (newPet: Omit<Pet, 'id'>) => {
-    setOptimisticPets(newPet as Pet);
+    setOptimisticPets({ action: 'add', payload: newPet });
     const error = await addPet(newPet);
     if (error) {
       toast.warning(error.message);
@@ -56,18 +61,25 @@ export default function PetContextProvider({
     }
   };
   const handleEditPet = async (petId: string, newPetData: Omit<Pet, 'id'>) => {
+    setOptimisticPets({
+      action: 'edit',
+      payload: { id: petId, data: newPetData },
+    });
     const error = await editPet(selectedPet!.id, newPetData);
     if (error) {
       toast.warning(error.message);
       return;
     }
   };
-  const handleChangeSelectedPetId = (id: string) => {
-    setSelectedPetId(id);
-  };
   const handleCheckoutPet = async (petId: string) => {
+    startTransition(() => {
+      setOptimisticPets({ action: 'delete', payload: petId });
+    });
     await deletePet(petId);
     setSelectedPetId(null);
+  };
+  const handleChangeSelectedPetId = (id: string) => {
+    setSelectedPetId(id);
   };
 
   return (
