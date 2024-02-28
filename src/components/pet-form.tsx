@@ -4,10 +4,7 @@ import { usePetContext } from '@/lib/hooks';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
-import { addPet, editPet } from '@/actions/actions';
 import PetFormBtn from './pet-form-btn';
-import { toast } from 'sonner';
-import { useFormState } from 'react-dom';
 
 type PetFormProps = {
   actionType: 'add' | 'edit';
@@ -18,25 +15,27 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
-  const { selectedPet } = usePetContext();
+  const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
 
   return (
     <form
       action={async (formData) => {
-        if (actionType === 'add') {
-          const error = await addPet(formData);
-          if (error) {
-            toast.warning(error.message);
-            return;
-          }
-        } else if (actionType === 'edit') {
-          const error = await editPet(selectedPet!.id, formData);
-          if (error) {
-            toast.warning(error.message);
-            return;
-          }
-        }
         onFormSubmission();
+
+        const petData = {
+          name: formData.get('name') as string,
+          imageUrl:
+            (formData.get('imageUrl') as string) ||
+            'https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png',
+          age: parseInt(formData.get('age') as string),
+          notes: formData.get('notes') as string,
+          ownerName: formData.get('ownerName') as string,
+        };
+        if (actionType === 'add') {
+          await handleAddPet(petData);
+        } else if (actionType === 'edit' && selectedPet) {
+          await handleEditPet(selectedPet.id, petData);
+        }
       }}
       className='flex flex-col'
     >
