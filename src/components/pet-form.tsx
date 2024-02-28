@@ -15,7 +15,7 @@ export default function PetForm({
   actionType,
   onFormSubmission,
 }: PetFormProps) {
-  const { handleAddPet } = usePetContext();
+  const { handleAddPet, selectedPet } = usePetContext();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,6 +46,7 @@ export default function PetForm({
             type='text'
             placeholder='Enter pet name'
             required
+            defaultValue={actionType === 'edit' ? selectedPet?.name : ''}
           />
         </div>
         <div className='space-y-1'>
@@ -56,6 +57,7 @@ export default function PetForm({
             type='text'
             placeholder='Enter owner name'
             required
+            defaultValue={actionType === 'edit' ? selectedPet?.ownerName : ''}
           />
         </div>
         <div className='space-y-1'>
@@ -65,6 +67,7 @@ export default function PetForm({
             id='imageUrl'
             type='text'
             placeholder='Enter image url'
+            defaultValue={actionType === 'edit' ? selectedPet?.imageUrl : ''}
           />
         </div>
         <div className='space-y-1'>
@@ -75,6 +78,7 @@ export default function PetForm({
             type='number'
             placeholder='Enter pet age'
             required
+            defaultValue={actionType === 'edit' ? selectedPet?.age : ''}
           />
         </div>
         <div className='space-y-1'>
@@ -85,6 +89,7 @@ export default function PetForm({
             placeholder='Enter pet notes'
             rows={3}
             required
+            defaultValue={actionType === 'edit' ? selectedPet?.notes : ''}
           />
         </div>
       </div>

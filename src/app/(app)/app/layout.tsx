@@ -5,11 +5,11 @@ import PetContextProvider from '@/contexts/pet-context-provider';
 import SearchContextProvider from '@/contexts/search-context-provider';
 import { Pet } from '@/lib/types';
 
-export default async function Layout({
-  children,
-}: {
+type Props = {
   children: React.ReactNode;
-}) {
+};
+
+export default async function Layout({ children }: Props) {
   const response = await fetch(
     'https://bytegrad.com/course-assets/projects/petsoft/api/pets'
   );
@@ -17,6 +17,7 @@ export default async function Layout({
   if (!response.ok) {
     throw new Error('Could not fetch pets');
   }
+
   const data: Pet[] = await response.json();
 
   return (
