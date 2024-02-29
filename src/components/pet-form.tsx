@@ -5,11 +5,31 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import PetFormBtn from './pet-form-btn';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 type PetFormProps = {
   actionType: 'add' | 'edit';
   onFormSubmission: () => void;
 };
+
+const PetFormSchema = z.object({
+  name: z.string().trim().min(1, { message: 'Name is required' }).max(20),
+  ownerName: z
+    .string()
+    .trim()
+    .min(1, { message: 'Owner name is required' })
+    .max(50),
+  imageUrl: z.union([
+    z.literal(''),
+    z.string().trim().url({ message: 'Invalid image url' }),
+  ]),
+  age: z.coerce.number().int().positive().max(99999),
+  notes: z.union([z.literal(''), z.string().trim().max(1000)]),
+});
+
+type TPetForm = z.infer<typeof PetFormSchema>;
 
 export default function PetForm({
   actionType,
@@ -17,9 +37,21 @@ export default function PetForm({
 }: PetFormProps) {
   const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
 
+  const {
+    register,
+    trigger,
+    clearErrors,
+    formState: { errors },
+  } = useForm<TPetForm>({
+    mode: 'onBlur',
+    resolver: zodResolver(PetFormSchema),
+  });
+
   return (
     <form
       action={async (formData) => {
+        const result = await trigger();
+        if (!result) return;
         onFormSubmission();
 
         const petData = {
@@ -42,57 +74,34 @@ export default function PetForm({
       <div className='space-y-3'>
         <div className='space-y-1'>
           <Label htmlFor='name'>Name</Label>
-          <Input
-            name='name'
-            id='name'
-            type='text'
-            placeholder='Enter pet name'
-            required
-            defaultValue={actionType === 'edit' ? selectedPet?.name : ''}
-          />
+          <Input id='name' {...register('name')} />
+          {errors.name && <p className='text-red-500'>{errors.name.message}</p>}
         </div>
         <div className='space-y-1'>
           <Label htmlFor='ownerName'>Owner Name</Label>
-          <Input
-            name='ownerName'
-            id='ownerName'
-            type='text'
-            placeholder='Enter owner name'
-            required
-            defaultValue={actionType === 'edit' ? selectedPet?.ownerName : ''}
-          />
+          <Input id='ownerName' {...register('ownerName')} />
+          {errors.ownerName && (
+            <p className='text-red-500'>{errors.ownerName.message}</p>
+          )}
         </div>
         <div className='space-y-1'>
           <Label htmlFor='imageUrl'>Image Url</Label>
-          <Input
-            name='imageUrl'
-            id='imageUrl'
-            type='text'
-            placeholder='Enter image url'
-            defaultValue={actionType === 'edit' ? selectedPet?.imageUrl : ''}
-          />
+          <Input id='imageUrl' {...register('imageUrl')} />
+          {errors.imageUrl && (
+            <p className='text-red-500'>{errors.imageUrl.message}</p>
+          )}
         </div>
         <div className='space-y-1'>
           <Label htmlFor='age'>Age</Label>
-          <Input
-            name='age'
-            id='age'
-            type='number'
-            placeholder='Enter pet age'
-            required
-            defaultValue={actionType === 'edit' ? selectedPet?.age : ''}
-          />
+          <Input id='age' {...register('age')} />
+          {errors.age && <p className='text-red-500'>{errors.age.message}</p>}
         </div>
         <div className='space-y-1'>
           <Label htmlFor='notes'>Notes</Label>
-          <Textarea
-            name='notes'
-            id='notes'
-            placeholder='Enter pet notes'
-            rows={3}
-            required
-            defaultValue={actionType === 'edit' ? selectedPet?.notes : ''}
-          />
+          <Textarea {...register('notes')} id='notes' />
+          {errors.notes && (
+            <p className='text-red-500'>{errors.notes.message}</p>
+          )}
         </div>
       </div>
 
