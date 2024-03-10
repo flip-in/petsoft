@@ -2,9 +2,18 @@
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { sleep } from '@/lib/utils';
-import { PetEssentials } from '@/lib/types';
-import { Pet } from '@prisma/client';
 import { PetFormSchema, PetIdSchema } from '@/lib/validations';
+import { signIn } from '@/lib/auth';
+
+// --- user actions ---
+
+export async function logIn(formData: FormData) {
+  const authData = Object.fromEntries(formData.entries())
+
+  await signIn('credentials', authData)
+}
+
+// --- pet actions ---
 
 export async function addPet(pet: unknown) {
   //unknown is a safer type for a backend endpoint instead of assuming the data will be the correct type
