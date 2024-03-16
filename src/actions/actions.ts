@@ -4,13 +4,28 @@ import { revalidatePath } from 'next/cache';
 import { sleep } from '@/lib/utils';
 import { PetFormSchema, PetIdSchema } from '@/lib/validations';
 import { signIn, signOut } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
 
 // --- user actions ---
 
-export async function logIn(formData: FormData) {
-  const authData = Object.fromEntries(formData.entries())
+export async function signUp(formData: FormData) {
+  const hashedPassword = await bcrypt.hash(formData.get('password') as string, 10)
 
-  await signIn('credentials', authData)
+  await prisma.user.create({
+    data: {
+      email: formData.get('email') as string ,
+      hashedPassword
+    }
+  })
+
+  await signIn('credentials', formData)
+}
+
+export async function logIn(formData: FormData) {
+  // const authData = Object.fromEntries(formData.entries());
+  //not necessary to convert to javascript object first. can just pass formData directly to the signIn function
+
+  await signIn('credentials', formData)
 }
 
 export async function logOut() {
