@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { sleep } from '@/lib/utils';
 import { PetFormSchema, PetIdSchema } from '@/lib/validations';
-import { signIn } from '@/lib/auth';
+import { signIn, signOut } from '@/lib/auth';
 
 // --- user actions ---
 
@@ -11,6 +11,11 @@ export async function logIn(formData: FormData) {
   const authData = Object.fromEntries(formData.entries())
 
   await signIn('credentials', authData)
+}
+
+export async function logOut() {
+
+  await signOut({redirectTo: '/'});
 }
 
 // --- pet actions ---
@@ -97,3 +102,4 @@ export async function deletePet(petId: unknown) {
   }
   revalidatePath('/app', "layout");
 }
+
