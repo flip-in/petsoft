@@ -2,13 +2,24 @@
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { sleep } from '@/lib/utils';
-import { PetFormSchema, PetIdSchema } from '@/lib/validations';
-import { auth, signIn, signOut } from '@/lib/auth';
+import { PetFormSchema, PetIdSchema, authSchema } from '@/lib/validations';
+import { signIn, signOut } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
-import { redirect } from 'next/navigation';
 import { checkAuth, getPetById } from '@/lib/server-utils';
 
 // --- user actions ---
+
+export async function logIn(formData: unknown) {
+  //not necessary to convert to javascript object first. can just pass formData directly to the signIn function, however formData is unknown type and needs to be validated first
+  //check if formData is a FormData type
+  if (!(formData instanceof FormData)) {
+    return {
+      message: "Invalid credentials."
+    }
+  }
+
+  await signIn('credentials', formData)
+}
 
 export async function signUp(formData: FormData) {
   const hashedPassword = await bcrypt.hash(formData.get('password') as string, 10)
@@ -23,12 +34,6 @@ export async function signUp(formData: FormData) {
   await signIn('credentials', formData)
 }
 
-export async function logIn(formData: FormData) {
-  // const authData = Object.fromEntries(formData.entries());
-  //not necessary to convert to javascript object first. can just pass formData directly to the signIn function
-
-  await signIn('credentials', formData)
-}
 
 export async function logOut() {
 

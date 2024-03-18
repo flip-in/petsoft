@@ -4,9 +4,6 @@ import BackgroundPattern from '@/components/background-pattern';
 import { Toaster } from '@/components/ui/sonner';
 import PetContextProvider from '@/contexts/pet-context-provider';
 import SearchContextProvider from '@/contexts/search-context-provider';
-import prisma from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
 import { checkAuth, getPetsByUserId } from '@/lib/server-utils';
 
 type Props = {
