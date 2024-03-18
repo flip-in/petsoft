@@ -6,6 +6,7 @@ import { PetFormSchema, PetIdSchema } from '@/lib/validations';
 import { auth, signIn, signOut } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
+import { checkAuth } from '@/lib/server-utils';
 
 // --- user actions ---
 
@@ -39,11 +40,7 @@ export async function logOut() {
 export async function addPet(pet: unknown) {
   //unknown is a safer type for a backend endpoint instead of assuming the data will be the correct type
   await sleep(1000)
-  const session = await auth();
-
-  if(!session?.user) {
-    redirect('/login')
-  }
+  const session = await checkAuth();
 
   const validatedPet = PetFormSchema.safeParse(pet);
 
@@ -76,10 +73,7 @@ export async function editPet(petId: unknown, newPetData: unknown) {
   await sleep(1000)
 
   //authentication check
-  const session = await auth();
-  if(!session?.user) {
-    redirect('/login')
-  }
+  const session = await checkAuth();
 
   //validation
   const validatedPetId = PetIdSchema.safeParse(petId);
@@ -134,10 +128,8 @@ export async function editPet(petId: unknown, newPetData: unknown) {
 export async function deletePet(petId: unknown) {
   await sleep(1000)
   //authentication check
-  const session = await auth();
-  if(!session?.user) {
-    redirect('/login')
-  }
+  const session = await checkAuth();
+
 
   //database validation
   const validatedPetId = PetIdSchema.safeParse(petId);
