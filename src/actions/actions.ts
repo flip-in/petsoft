@@ -7,10 +7,11 @@ import { signIn, signOut } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { checkAuth, getPetById } from '@/lib/server-utils';
 import { Prisma } from '@prisma/client';
+import { AuthError } from 'next-auth';
 
 // --- user actions ---
 
-export async function logIn(formData: unknown) {
+export async function logIn(prevState: unknown, formData: unknown) {
   //not necessary to convert to javascript object first. can just pass formData directly to the signIn function, however formData is unknown type and needs to be validated first
   //check if formData is a FormData type
   if (!(formData instanceof FormData)) {
@@ -18,11 +19,32 @@ export async function logIn(formData: unknown) {
       message: "Invalid credentials."
     }
   }
+  try {
+    await signIn('credentials', formData)
 
-  await signIn('credentials', formData)
+  } catch(error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin': {
+          return {
+            message: "Invalid credentials."
+          }
+        }
+        default: {
+          return {
+            message: "Could not sign in."
+          }
+        }
+      }
+    }
+    return {
+      message: "Could not sign in."
+    }
+  }
+
 }
 
-export async function signUp(formData: unknown) {
+export async function signUp(prevState: unknown, formData: unknown) {
   await sleep(1000)
   //check if formData is a FormData type
   if (!(formData instanceof FormData)) {
