@@ -75,6 +75,13 @@ export async function addPet(pet: unknown) {
 export async function editPet(petId: unknown, newPetData: unknown) {
   await sleep(1000)
 
+  //authentication check
+  const session = await auth();
+  if(!session?.user) {
+    redirect('/login')
+  }
+
+  //validation
   const validatedPetId = PetIdSchema.safeParse(petId);
   
   const validatedPet = PetFormSchema.safeParse(newPetData);
@@ -85,7 +92,28 @@ export async function editPet(petId: unknown, newPetData: unknown) {
     }
   }
 
+  //authorization check (user owns pet)
+  const pet = await prisma.pet.findUnique({
+    where: {
+      id: validatedPetId.data,
+    },
+    //best practice to only get the data you actually need, not the whole pet data
+    select: {
+      userId: true
+    }
+  })
+  if(!pet) {
+    return {
+      message: "Pet not found."
+    }
+  }
+  if (pet.userId !== session.user.id) {
+    return {
+      message: "Unauthorized."
+    }
+  }
 
+  //database mutation
   try {
     await prisma.pet.update({
       where: {
@@ -105,7 +133,13 @@ export async function editPet(petId: unknown, newPetData: unknown) {
 
 export async function deletePet(petId: unknown) {
   await sleep(1000)
+  //authentication check
+  const session = await auth();
+  if(!session?.user) {
+    redirect('/login')
+  }
 
+  //database validation
   const validatedPetId = PetIdSchema.safeParse(petId);
 
   if (!validatedPetId.success) {
@@ -113,6 +147,30 @@ export async function deletePet(petId: unknown) {
       message: "Invalid pet data."
     }
   }
+
+  //authorization check (user owns pet)
+  const pet = await prisma.pet.findUnique({
+    where: {
+      id: validatedPetId.data,
+    },
+    //best practice to only get the data you actually need, not the whole pet data
+    select: {
+      userId: true
+    }
+  })
+  if(!pet) {
+    return {
+      message: "Pet not found."
+    }
+  }
+  if (pet.userId !== session.user.id) {
+    return {
+      message: "Unauthorized."
+    }
+  }
+
+
+  //database mutation
   try {
     await prisma.pet.delete({
       where: {
