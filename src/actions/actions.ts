@@ -32,14 +32,12 @@ export async function logIn(prevState: unknown, formData: unknown) {
         }
         default: {
           return {
-            message: "Could not sign in."
+            message: "Error. Could not sign in."
           }
         }
       }
     }
-    return {
-      message: "Could not sign in."
-    }
+    throw error; //nextjs redirect throws error, so we need to re-throw it
   }
 
 }
