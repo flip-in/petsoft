@@ -3,8 +3,9 @@ import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { sleep } from '@/lib/utils';
 import { PetFormSchema, PetIdSchema } from '@/lib/validations';
-import { signIn, signOut } from '@/lib/auth';
+import { auth, signIn, signOut } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { redirect } from 'next/navigation';
 
 // --- user actions ---
 
@@ -38,6 +39,11 @@ export async function logOut() {
 export async function addPet(pet: unknown) {
   //unknown is a safer type for a backend endpoint instead of assuming the data will be the correct type
   await sleep(1000)
+  const session = await auth();
+
+  if(!session?.user) {
+    redirect('/login')
+  }
 
   const validatedPet = PetFormSchema.safeParse(pet);
 
@@ -50,7 +56,11 @@ export async function addPet(pet: unknown) {
   try {
 
     await prisma.pet.create({
-       data: validatedPet.data
+       data: {...validatedPet.data, user: {
+        connect: {
+          id: session.user.id
+        }
+       }}
     })
   } catch (error) {
     return {
