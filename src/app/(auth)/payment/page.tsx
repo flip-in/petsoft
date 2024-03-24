@@ -14,7 +14,7 @@ export default function Page({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const { update } = useSession();
+  const { data: session, update, status } = useSession();
 
   return (
     <main className='flex flex-col items-center space-y-10'>
@@ -26,6 +26,7 @@ export default function Page({
             await update(true);
             router.push('/app/dashboard');
           }}
+          disabled={status === 'loading' || session?.user.hasAccess}
         >
           Access PetSoft
         </Button>
