@@ -46,7 +46,6 @@ export async function logIn(prevState: unknown, formData: unknown) {
 }
 
 export async function signUp(prevState: unknown, formData: unknown) {
-  await sleep(1000)
   //check if formData is a FormData type
   if (!(formData instanceof FormData)) {
     return {
@@ -92,7 +91,6 @@ export async function signUp(prevState: unknown, formData: unknown) {
 
 
 export async function logOut() {
-  await sleep(1000);
 
   await signOut({redirectTo: '/'});
 }
@@ -100,8 +98,7 @@ export async function logOut() {
 // --- pet actions ---
 
 export async function addPet(pet: unknown) {
-  //unknown is a safer type for a backend endpoint instead of assuming the data will be the correct type
-  await sleep(1000)
+  //unknown is a safer type for a backend endpoint instead of assuming the data will be the correct types
   const session = await checkAuth();
 
   const validatedPet = PetFormSchema.safeParse(pet);
@@ -132,7 +129,6 @@ export async function addPet(pet: unknown) {
 }
 
 export async function editPet(petId: unknown, newPetData: unknown) {
-  await sleep(1000)
 
   //authentication check
   const session = await checkAuth();
@@ -180,7 +176,7 @@ export async function editPet(petId: unknown, newPetData: unknown) {
 }
 
 export async function deletePet(petId: unknown) {
-  await sleep(1000)
+
   //authentication check
   const session = await checkAuth();
 
