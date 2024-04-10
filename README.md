@@ -6,8 +6,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Features
 
-Prisma + PostgreSQL
-Stripe for payments
-ShadcnUI
-React Hook Form
-Auth.js
+Prisma + PostgreSQL  
+Stripe for payments  
+ShadcnUI  
+React Hook Form  
+Auth.js  
