@@ -3,7 +3,7 @@ import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { sleep } from '@/lib/utils';
 import { PetFormSchema, PetIdSchema, authSchema } from '@/lib/validations';
-import { signIn, signOut } from '@/lib/auth';
+import { signIn, signOut } from '@/lib/auth-no-edge';
 import bcrypt from 'bcryptjs';
 import { checkAuth, getPetById } from '@/lib/server-utils';
 import { Prisma } from '@prisma/client';
